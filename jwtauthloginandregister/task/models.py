@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from jwtauthloginandregister import settings
 
 # Create your models here.
 
@@ -37,5 +38,5 @@ class TaskModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     total_comments = models.IntegerField(default=0)
-    created_by_id = models.IntegerField()
+    created_by_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 

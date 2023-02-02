@@ -7,6 +7,8 @@ from datetime import datetime
 import jwt
 from jwtauthloginandregister.settings import SECRET_KEY
 from user_task_permission.models import UserPermissionModel
+from .permissions import AllButTaskCreatorGetReadOnly
+ 
 
 def authenticate(token):
     try:
@@ -43,6 +45,7 @@ class RegisterTask(generics.GenericAPIView):
 
 
 class TaskDetail(generics.GenericAPIView):
+    permission_classes = [AllButTaskCreatorGetReadOnly]
     queryset = TaskModel.objects.all()
     serializer_class = TaskSerializer
 
@@ -69,8 +72,10 @@ class TaskDetail(generics.GenericAPIView):
     def patch(self, request, pk):
         token = request.headers.get("authorization")
         authenticated = authenticate(token=token)
+        
         if authenticated:
             task = self.get_task(pk)
+            self.check_object_permissions(obj=task, request=request)
             if task == None:
                 return Response({"status": "fail", "message": f"task with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
 

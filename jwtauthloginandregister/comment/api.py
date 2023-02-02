@@ -59,7 +59,7 @@ class RegisterComment(generics.GenericAPIView):
         start_num = (page_num - 1) * limit_num
         end_num = limit_num * page_num
         search_param = request.GET.get("search")
-        comment = CommentModel.objects.filter(task_id=request.data.id).values_list('pk', flat=True)
+        comment = CommentModel.objects.filter(task_id=request.data.task_id).values_list('pk', flat=True)
         total_comment = comment.count()
         if search_param:
             comment = comment.filter(title__icontains=search_param)

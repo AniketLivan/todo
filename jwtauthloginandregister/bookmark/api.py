@@ -1,10 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from jwtauthloginandregister.bookmark.serializer import BookmarkSerializer
+from .serializer import BookmarkSerializer
 from jwtauthloginandregister.settings import SECRET_KEY
 from django.contrib.auth.models import User
 
-from models import BookmarkModel
+from .models import BookmarkModel
 import jwt
 
 def authenticate(token):

@@ -40,7 +40,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'account',
     'task',
-    'bookmark'
+    'bookmark',
+    'user_task_permission',
+    'comment',
+    'vote'
 ]
 
 MIDDLEWARE = [

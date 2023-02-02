@@ -6,6 +6,7 @@ from .models import TaskModel
 from datetime import datetime
 import jwt
 from jwtauthloginandregister.settings import SECRET_KEY
+from user_task_permission.models import UserPermissionModel
 
 def authenticate(token):
     try:
@@ -56,11 +57,12 @@ class TaskDetail(generics.GenericAPIView):
         authenticated = authenticate(token=token)
         if authenticated:
             task = self.get_task(pk=pk)
+            
             if task == None:
                 return Response({"status": "fail", "message": f"task with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
-
+            assigned_users = UserPermissionModel.objects.filter(task_id=pk).values('pk', flat=True)
             serializer = self.serializer_class(task)
-            return Response({"status": "success", "task": serializer.data})
+            return Response({"status": "success", "task": serializer.data, "assigned_user":assigned_users})
         else:
             raise Exception("Invalid Token")
 

@@ -1,6 +1,4 @@
 from rest_framework import  serializers
-from rest_framework.permissions import IsAuthenticated
-from django.db import models
 from .models import TaskModel
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password

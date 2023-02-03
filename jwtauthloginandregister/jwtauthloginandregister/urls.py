@@ -22,9 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('account/', include('account.urls')),
     path('api/task/', include('task.urls')),
-    path('api/bookmark/', include('bookmark.urls')),
-    path('api/user_task_permission/', include('user_task_permission.urls')),
-    path('api/comment/', include('comment.urls'))
+
 ]

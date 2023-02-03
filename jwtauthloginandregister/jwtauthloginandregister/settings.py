@@ -38,12 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'account',
     'task',
-    'bookmark',
-    'user_task_permission',
-    'comment',
-    'vote'
+    'guardian'
 ]
 
 MIDDLEWARE = [
@@ -136,3 +132,8 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'auth.User'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)

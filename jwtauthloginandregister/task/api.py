@@ -65,7 +65,7 @@ class TaskDetail(generics.GenericAPIView):
             
             if task == None:
                 return Response({"status": "fail", "message": f"task with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
-            assigned_users = UserPermissionModel.objects.filter(task_id=pk).values('pk', flat=True)
+            assigned_users = UserPermissionModel.objects.filter(task_id=pk).values('assigned_to_id')
             serializer = self.serializer_class(task)
             return Response({"status": "success", "task": serializer.data, "assigned_user":assigned_users})
         else:
@@ -262,19 +262,19 @@ class RegisterPermission(generics.GenericAPIView):
     queryset = UserPermissionModel.objects.all()
 
     def post(self, request, *args,  **kwargs):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
-        if authenticated:
-            if 'user' in request.data:
+        # token = request.headers.get("authorization")
+        # authenticated = authenticate(token=token)
+        if request.user.is_authenticated:
+            # if 'user' in request.data:
                 
-                data_to_add = {
-                    'created_by_id': authenticated['id'],
-                    'assigned_to_id': request.data.user.id,
-                    'task_id': request.data.task_id,
-                    'assigned_person': request.data.user['name'],
-                    'permission': request.data.user['permission']
-                }  
-                serializer = self.serializer_class(data=data_to_add)
+            #     data_to_add = {
+            #         'created_by_id': request.user['id'],
+            #         'assigned_to_id': request.data.assigned_to_id,
+            #         'task_id': request.data.task_id,
+            #         'assigned_person': request.data.user['name'],
+            #         'permission': request.data.user['permission']
+            #     }  
+            serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"status": "success", "permission": serializer.data}, status=status.HTTP_201_CREATED)

@@ -26,7 +26,7 @@ class TaskModel(models.Model):
         inactive = 'IAC', _('Inactive')
         deleted = 'DEL', _('Deleted')
     
-    id = models.IntegerField(primary_key=True)
+    # id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length = 200)
     description = models.TextField()
     # assigned_to = models.ArrayField(
@@ -75,7 +75,7 @@ class UserPermissionModel(models.Model):
         read_only = 'RO', _('Read Only')
         edit = 'ED', _('Edit')
 
-    id = models.IntegerField(primary_key=True)
+    # id = models.IntegerField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     assigned_to_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

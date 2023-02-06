@@ -32,8 +32,8 @@ class RegisterTask(generics.GenericAPIView):
 
     def post(self, request, *args,  **kwargs):
         # token = request.headers.get("authorization")
-        # authenticated = authenticate(token=token)
-        if request.user.is_authenticated:
+        # request.user.is_authenticated = authenticate(token=token)
+        if request.user.is_request.user.is_authenticated:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             task = serializer.save()
@@ -59,8 +59,8 @@ class TaskDetail(generics.GenericAPIView):
 
     def get(self, request, pk):
         # token = request.headers.get("authorization")
-        # authenticated = authenticate(token=token)
-        if request.user.is_authenticated:
+        # request.user.is_authenticated = authenticate(token=token)
+        if request.user.is_request.user.is_authenticated:
             task = self.get_task(pk=pk)
             
             if task == None:
@@ -73,9 +73,9 @@ class TaskDetail(generics.GenericAPIView):
 
     def patch(self, request, pk):
         # token = request.headers.get("authorization")
-        # authenticated = authenticate(token=token)
+        # request.user.is_authenticated = authenticate(token=token)
         
-        if request.user.is_authenticated:
+        if request.user.is_request.user.is_authenticated:
             task = self.get_task(pk)
             # self.check_object_permissions(obj=task, request=request)
             print(request.user.has_perm('task.change_task_model', task))
@@ -131,9 +131,8 @@ class RegisterBookmark(generics.GenericAPIView):
     queryset = BookmarkModel.objects.all()
 
     def post(self, request, *args,  **kwargs):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
-        if authenticated:
+        
+        if request.user.is_authenticated:
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -154,9 +153,8 @@ class BookmarkDetail(generics.GenericAPIView):
             return None
 
     def delete(self, request, id):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
-        if authenticated:
+        
+        if request.user.is_authenticated:
             bookmark = self.get_bookmark(id)
             if bookmark == None:
                 return Response({"status": "fail", "message": f"bookmark with Id: {id} not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -172,17 +170,16 @@ class RegisterComment(generics.GenericAPIView):
     queryset = CommentModel.objects.all()
 
     def post(self, request, *args,  **kwargs):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
-        if authenticated:
+        
+        if request.user.is_authenticated:
             
-            data_to_add = {
-                'created_by_id': authenticated['id'],
-                'task_id': request.data.task_id,
-                'description': request.data.description,
-                'created_by_name': request.data.created_by_name
-            }  
-            serializer = self.serializer_class(data=data_to_add)
+            # data_to_add = {
+            #     'created_by_id': request.user.is_authenticated['id'],
+            #     'task_id': request.data.task_id,
+            #     'description': request.data.description,
+            #     'created_by_name': request.data.created_by_name
+            # }  
+            serializer = self.serializer_class(data=request.data)
             try:
                 with transaction.atomic():
                     serializer.save()
@@ -225,9 +222,8 @@ class CommentDetail(generics.GenericAPIView):
             return None
 
     def delete(self, request, id):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
-        if authenticated:
+        
+        if request.user.is_authenticated:
             comment = self.get_comment(id)
             if comment == None:
                 return Response({"status": "fail", "message": f"comment with Id: {id} not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -265,8 +261,8 @@ class RegisterPermission(generics.GenericAPIView):
 
     def post(self, request, *args,  **kwargs):
         # token = request.headers.get("authorization")
-        # authenticated = authenticate(token=token)
-        if request.user.is_authenticated:
+        # request.user.is_authenticated = authenticate(token=token)
+        if request.user.is_request.user.is_authenticated:
             # if 'user' in request.data:
                 
             #     data_to_add = {
@@ -315,9 +311,8 @@ class PermissionDetail(generics.GenericAPIView):
             return None
 
     def delete(self, request, id):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
-        if authenticated:
+        
+        if request.user.is_authenticated:
             Permission = self.get_permission(id)
             if Permission == None:
                 return Response({"status": "fail", "message": f"Permission with Id: {id} not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -344,14 +339,13 @@ class RegisterVote(generics.GenericAPIView):
     queryset = VoteModel.objects.all()
 
     def post(self, request, *args,  **kwargs):
-        token = request.headers.get("authorization")
-        authenticated = authenticate(token=token)
+        
         user_vote = VoteModel.objects.get(comment_id=request.data.comment_id)
         if user_vote:
             return Response({"status": "fail", "message": "Already Voted"}, status=status.HTTP_403_FORBIDDEN)
-        if authenticated:
+        if request.user.is_authenticated:
             data_to_add = {
-                'created_by_id': authenticated['id'],
+                'created_by_id': request.user.is_authenticated['id'],
                 'task_id': request.data.task_id,
                 'comment_id': request.data.comment_id
             }  

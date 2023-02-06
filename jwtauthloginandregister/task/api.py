@@ -33,7 +33,7 @@ class RegisterTask(generics.GenericAPIView):
     def post(self, request, *args,  **kwargs):
         # token = request.headers.get("authorization")
         # request.user.is_authenticated = authenticate(token=token)
-        if request.user.is_request.user.is_authenticated:
+        if request.user.is_authenticated:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             task = serializer.save()
@@ -228,25 +228,31 @@ class CommentDetail(generics.GenericAPIView):
             return None
 
     def patch(self, request, pk):
-        comment = self.get_comment(pk)
-        if comment == None:
-            return Response({"status": "fail", "message": f"comment with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.is_authenticated:
+            comment = self.get_comment(pk)
+            if comment == None:
+                return Response({"status": "fail", "message": f"comment with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = self.serializer_class(
-            comment, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.validated_data['updated_at'] = datetime.now()
-            serializer.save()
-            return Response({"status": "success", "comment": serializer.data})
-        return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            serializer = self.serializer_class(
+                comment, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.validated_data['updated_at'] = datetime.now()
+                serializer.save()
+                return Response({"status": "success", "comment": serializer.data})
+            return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"status": "fail", "message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def delete(self, request, pk):
-        comment = self.get_comment(pk)
-        if comment == None:
-            return Response({"status": "fail", "message": f"comment with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.is_authenticated:
+            comment = self.get_comment(pk)
+            if comment == None:
+                return Response({"status": "fail", "message": f"comment with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"status": "fail", "message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 #Permission APIs
@@ -317,17 +323,20 @@ class PermissionDetail(generics.GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk):
-        permission = self.get_permission(pk)
-        if permission == None:
-            return Response({"status": "fail", "message": f"permission with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.is_authenticated:
+            permission = self.get_permission(pk)
+            if permission == None:
+                return Response({"status": "fail", "message": f"permission with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = self.serializer_class(
-            permission, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.validated_data['updated_at'] = datetime.now()
-            serializer.save()
-            return Response({"status": "success", "permission": serializer.data})
-        return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            serializer = self.serializer_class(
+                permission, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.validated_data['updated_at'] = datetime.now()
+                serializer.save()
+                return Response({"status": "success", "permission": serializer.data})
+            return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"status": "fail", "message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED) 
 
 #UPvote comment API
 class RegisterVote(generics.GenericAPIView):
@@ -339,7 +348,7 @@ class RegisterVote(generics.GenericAPIView):
         user_vote = VoteModel.objects.filter(comment_id=request.data['comment_id'], created_by_id=request.user.id).first()
         if user_vote:
             return Response({"status": "fail", "message": "Already Voted"}, status=status.HTTP_403_FORBIDDEN)
-        if request.user.is_authenticated:
+        if not request.user.is_authenticated:
             # data_to_add = {
             #     'created_by_id': request.user.is_authenticated['id'],
             #     'task_id': request.data.task_id,

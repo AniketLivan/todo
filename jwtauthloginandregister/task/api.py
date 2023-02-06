@@ -343,7 +343,7 @@ class RegisterVote(generics.GenericAPIView):
 
     def post(self, request, *args,  **kwargs):
         
-        user_vote = VoteModel.objects.get(comment_id=request.data.comment_id)
+        user_vote = VoteModel.objects.get(comment_id=request.data['comment_id'])
         if user_vote:
             return Response({"status": "fail", "message": "Already Voted"}, status=status.HTTP_403_FORBIDDEN)
         if request.user.is_authenticated:

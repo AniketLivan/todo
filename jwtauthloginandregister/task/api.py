@@ -60,7 +60,7 @@ class TaskDetail(generics.GenericAPIView):
     def get(self, request, pk):
         # token = request.headers.get("authorization")
         # request.user.is_authenticated = authenticate(token=token)
-        if request.user.is_request.user.is_authenticated:
+        if request.user.is_authenticated:
             task = self.get_task(pk=pk)
             
             if task == None:
@@ -182,11 +182,14 @@ class RegisterComment(generics.GenericAPIView):
             serializer = self.serializer_class(data=request.data)
             try:
                 with transaction.atomic():
-                    serializer.save()
-                    task = TaskModel.objects.filter(pk=request.data.task_id).select_for_update().get() 
-                    task.validated_data["total_comments"] += 1
-                    task.save()
-            except Exception:
+                    if serializer.is_valid():
+                        serializer.save()
+                        print(request.data)
+                        task = TaskModel.objects.select_for_update().filter(pk=request.data['task_id']).first()
+                        task.total_comments +=1
+                        task.save()
+            except Exception as e:
+                print(e)
                 return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"status": "success", "comment": serializer.data}, status=status.HTTP_201_CREATED)
         else:
@@ -344,17 +347,17 @@ class RegisterVote(generics.GenericAPIView):
         if user_vote:
             return Response({"status": "fail", "message": "Already Voted"}, status=status.HTTP_403_FORBIDDEN)
         if request.user.is_authenticated:
-            data_to_add = {
-                'created_by_id': request.user.is_authenticated['id'],
-                'task_id': request.data.task_id,
-                'comment_id': request.data.comment_id
-            }  
-            serializer = self.serializer_class(data=data_to_add)
+            # data_to_add = {
+            #     'created_by_id': request.user.is_authenticated['id'],
+            #     'task_id': request.data.task_id,
+            #     'comment_id': request.data.comment_id
+            # }  
+            serializer = self.serializer_class(data=request.data)
             try:
                 with transaction.atomic():
                     serializer.save()
-                    comment = CommentModel.objects.filter(pk=request.data.comment_id).select_for_update().get() 
-                    comment.validated_data['up_votes'] += 1
+                    comment = CommentModel.objects.select_for_update().filter(pk=request.data['comment_id']).first()
+                    comment.up_votes +=1
                     comment.save()
             except Exception:
                 return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

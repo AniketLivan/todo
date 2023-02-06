@@ -54,7 +54,7 @@ class BookmarkModel(models.Model):
     task_id = models.ForeignKey('TaskModel', on_delete=models.CASCADE)
 class CommentModel(models.Model):
     
-    id = models.IntegerField(primary_key=True)
+    # id = models.IntegerField(primary_key=True)
     description = models.TextField()
     created_by_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)

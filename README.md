@@ -1,24 +1,24 @@
 "# todo" 
-Requirements for project:\
-    First create venv using python -m venv "{env_name}"
-    activate the env. According to the system.
-    Install from requirements.txt pip install -r requirements.txt
-    Do django migration using python manage.py migrate
-    Run django server to start the app. 
-    python manage.py runserver
+1. Requirements for project:\
+    - First create venv using python -m venv "{env_name}"
+    - activate the env. According to the system.
+    - Install from requirements.txt pip install -r requirements.txt
+    - Do django migration using python manage.py migrate
+    - Run django server to start the app. 
+    - python manage.py runserver
 
-APIs Available:
-    Auth APIs:
-        Add user
-            /api/register:
-            {
-                "username": ,
-                "password": ,
-                "first_name":,
-                "last_name":,
-            }
-        Delete User
-            Can only be done by Super user:
-                create own super user
-                python3 manage.py createsuperuser
-            api/account/{"user_id"}
+2. APIs Available:
+    - Auth APIs:
+            - Add user
+                /api/register:
+                {
+                    "username": ,
+                    "password": ,
+                    "first_name":,
+                    "last_name":,
+                }
+            - Delete User
+                    Can only be done by Super user:
+                        create own super user
+                        python3 manage.py createsuperuser
+                    api/account/{"user_id"}

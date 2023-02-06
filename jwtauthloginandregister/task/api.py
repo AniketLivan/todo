@@ -201,7 +201,7 @@ class RegisterComment(generics.GenericAPIView):
         start_num = (page_num - 1) * limit_num
         end_num = limit_num * page_num
         search_param = request.GET.get("search")
-        comment = CommentModel.objects.filter(task_id=request.data.task_id).values_list('pk', flat=True)
+        comment = CommentModel.objects.filter(task_id=request.data["task_id"]).all()
         total_comment = comment.count()
         if search_param:
             comment = comment.filter(title__icontains=search_param)
@@ -223,16 +223,6 @@ class CommentDetail(generics.GenericAPIView):
             return CommentModel.objects.get(pk=pk)
         except:
             return None
-
-    def delete(self, request, id):
-        
-        if request.user.is_authenticated:
-            comment = self.get_comment(id)
-            if comment == None:
-                return Response({"status": "fail", "message": f"comment with Id: {id} not found"}, status=status.HTTP_404_NOT_FOUND)
-
-            comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk):
         comment = self.get_comment(pk)
@@ -343,7 +333,7 @@ class RegisterVote(generics.GenericAPIView):
 
     def post(self, request, *args,  **kwargs):
         
-        user_vote = VoteModel.objects.get(comment_id=request.data['comment_id'], created_by_id=request.user.id)
+        user_vote = VoteModel.objects.filter(comment_id=request.data['comment_id'], created_by_id=request.user.id).first()
         if user_vote:
             return Response({"status": "fail", "message": "Already Voted"}, status=status.HTTP_403_FORBIDDEN)
         if request.user.is_authenticated:
@@ -355,10 +345,11 @@ class RegisterVote(generics.GenericAPIView):
             serializer = self.serializer_class(data=request.data)
             try:
                 with transaction.atomic():
-                    serializer.save()
-                    comment = CommentModel.objects.select_for_update().filter(pk=request.data['comment_id']).first()
-                    comment.up_votes +=1
-                    comment.save()
+                    if serializer.is_valid():
+                        serializer.save()
+                        comment = CommentModel.objects.select_for_update().filter(pk=request.data['comment_id']).first()
+                        comment.up_votes +=1
+                        comment.save()
             except Exception:
                 return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"status": "success", "comment": serializer.data}, status=status.HTTP_201_CREATED)

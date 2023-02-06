@@ -42,7 +42,7 @@ class TaskModel(models.Model):
 
     class Meta:
         permissions = (
-            ('change_taskModel', 'Change taskmodel'),
+            ('change_task_model', 'Change Taskmodel'),
         )
 # Create your models here.
 

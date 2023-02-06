@@ -37,7 +37,7 @@ class RegisterTask(generics.GenericAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             task = serializer.save()
-            assign_perm('change_taskModel', request.user, task)
+            assign_perm('task.change_task_model', request.user, task)
             return Response({
                 "user": TaskSerializer(task, context=self.get_serializer_context()).data,
                 "message": "User Created Successfully.  Now perform Login to get your token",
@@ -78,10 +78,12 @@ class TaskDetail(generics.GenericAPIView):
         if request.user.is_authenticated:
             task = self.get_task(pk)
             # self.check_object_permissions(obj=task, request=request)
+            print(request.user.has_perm('task.change_task_model', task))
+            print(request.user)
             if task == None:
                 return Response({"status": "fail", "message": f"task with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
-            if not request.user.has_perm(task):
-                return Response({"status": "fail", "message": f"Request denied for user {request.user.username}"}, status=status.HTTP_401_NOT_FOUND)
+            if not request.user.has_perm('task.change_task_model', task):
+                return Response({"status": "fail", "message": f"Request denied for user {request.user.username}"}, status=status.HTTP_403_FORBIDDEN)
 
             serializer = self.serializer_class(
                 task, data=request.data, partial=True)

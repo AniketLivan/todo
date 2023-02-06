@@ -112,17 +112,20 @@ class RegisterAccountDetail(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
     def delete(self, request, pk):
-        user = User.objects.get(pk=pk)
-        if user == None:
-            return Response({"status": "fail", "message": f"User with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            with transaction.atomic():
-                user.delete()
-                tasks = TaskModel.objects.filter(created_by_id=pk)
-                tasks.delete()
-        except Exception:
-            return Response({"status": "fail", "message": f"User with Id: {pk} not failed"}, status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user.is_superuser:
+            user = User.objects.get(pk=pk)
+            if user == None:
+                return Response({"status": "fail", "message": f"User with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                with transaction.atomic():
+                    user.delete()
+                    tasks = TaskModel.objects.filter(created_by_id=pk).all()
+                    tasks.delete()
+            except Exception:
+                return Response({"status": "fail", "message": f"User with Id: {pk} not failed"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(message="Unauthorized. Super User req",status=status.HTTP_401_UNAUTHORIZED)
 
 
 #BookMark APIs

@@ -75,7 +75,7 @@ class TaskDetail(generics.GenericAPIView):
         # token = request.headers.get("authorization")
         # request.user.is_authenticated = authenticate(token=token)
         
-        if request.user.is_request.user.is_authenticated:
+        if request.user.is_authenticated:
             task = self.get_task(pk)
             # self.check_object_permissions(obj=task, request=request)
             print(request.user.has_perm('task.change_task_model', task))
@@ -258,7 +258,7 @@ class RegisterPermission(generics.GenericAPIView):
     def post(self, request, *args,  **kwargs):
         # token = request.headers.get("authorization")
         # request.user.is_authenticated = authenticate(token=token)
-        if request.user.is_request.user.is_authenticated:
+        if request.user.is_authenticated:
             # if 'user' in request.data:
                 
             #     data_to_add = {

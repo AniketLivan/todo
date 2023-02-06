@@ -348,7 +348,7 @@ class RegisterVote(generics.GenericAPIView):
         user_vote = VoteModel.objects.filter(comment_id=request.data['comment_id'], created_by_id=request.user.id).first()
         if user_vote:
             return Response({"status": "fail", "message": "Already Voted"}, status=status.HTTP_403_FORBIDDEN)
-        if not request.user.is_authenticated:
+        if request.user.is_authenticated:
             # data_to_add = {
             #     'created_by_id': request.user.is_authenticated['id'],
             #     'task_id': request.data.task_id,

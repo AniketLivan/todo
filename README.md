@@ -18,4 +18,7 @@ APIs Available:
                 "last_name":,
             }
         Delete User
-            /
+            Can only be done by Super user:
+                create own super user
+                python3 manage.py createsuperuser
+            api/account/{"user_id"}

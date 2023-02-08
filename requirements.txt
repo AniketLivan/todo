@@ -2,3 +2,5 @@ django
 djangorestframework
 rest_framework_simplejwt
 django-guardian
+drf-yasg
+django-rest-swagger

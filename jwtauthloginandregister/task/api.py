@@ -34,16 +34,37 @@ class RegisterTask(generics.GenericAPIView):
         # token = request.headers.get("authorization")
         # request.user.is_authenticated = authenticate(token=token)
         if request.user.is_authenticated:
-            serializer = self.get_serializer(data=request.data)
+            data = request.data
+            data['created_by'] = request.user.id
+            serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             task = serializer.save()
             assign_perm('task.change_task_model', request.user, task)
             return Response({
                 "user": TaskSerializer(task, context=self.get_serializer_context()).data,
-                "message": "User Created Successfully.  Now perform Login to get your token",
+                "message": "Task Created Successfully.  Now perform Login to get your token",
             })
         else:
             raise Exception("Invalid Token")
+        
+    def get(self, request):
+        page_num = int(request.GET.get("page", 1))
+        limit_num = int(request.GET.get("limit", 10))
+        start_num = (page_num - 1) * limit_num
+        end_num = limit_num * page_num
+        search_param = request.GET.get("search")
+        task =TaskModel.filter().all()
+        total_task = task.count()
+        if search_param:
+            task = task.filter(title__icontains=search_param)
+        serializer = self.serializer_class(task[start_num:end_num], many=True)
+        return Response({
+            "status": "success",
+            "total": total_task,
+            "page": page_num,
+            "last_page": math.ceil(total_task / limit_num),
+            "task": serializer.data
+        })
 
 
 class TaskDetail(generics.GenericAPIView):
@@ -60,6 +81,8 @@ class TaskDetail(generics.GenericAPIView):
     def get(self, request, pk):
         # token = request.headers.get("authorization")
         # request.user.is_authenticated = authenticate(token=token)
+        if not pk:
+            return Response({"status": "Fail", "task": "Provide ID"})
         if request.user.is_authenticated:
             task = self.get_task(pk=pk)
             
@@ -110,7 +133,7 @@ class RegisterApi(generics.GenericAPIView):
 
 class RegisterAccountDetail(generics.GenericAPIView):
     serializer_class = RegisterSerializer
-
+    queryset = User.objects.all()
     def delete(self, request, pk):
         if request.user.is_superuser:
             user = User.objects.get(pk=pk)
@@ -136,7 +159,9 @@ class RegisterBookmark(generics.GenericAPIView):
     def post(self, request, *args,  **kwargs):
         
         if request.user.is_authenticated:
-            serializer = self.serializer_class(data=request.data)
+            data = request.data
+            data["created_by"] = request.user.id
+            serializer = self.serializer_class(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"status": "success", "bookmark": serializer.data}, status=status.HTTP_201_CREATED)
@@ -182,7 +207,9 @@ class RegisterComment(generics.GenericAPIView):
             #     'description': request.data.description,
             #     'created_by_name': request.data.created_by_name
             # }  
-            serializer = self.serializer_class(data=request.data)
+            data = request.data
+            data['created_by'] = request.user.id
+            serializer = self.serializer_class(data=data)
             try:
                 with transaction.atomic():
                     if serializer.is_valid():

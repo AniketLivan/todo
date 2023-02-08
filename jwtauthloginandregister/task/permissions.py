@@ -19,16 +19,16 @@ class AllButTaskCreatorGetReadOnly(permissions.BasePermission):
             return False
         return True
 
-    def has_object_permission(self, request, view, obj):
-        payload = jwt.decode(jwt=request.headers.authoriztation, key=SECRET_KEY, algorithms=['HS256'])
+    # def has_object_permission(self, request, view, obj):
+    #     # payload = jwt.decode(jwt=request.headers.authoriztation, key=SECRET_KEY, algorithms=['HS256'])
         
-        if request.user.is_superuser:
-            return True
+    #     if request.user.is_superuser:
+    #         return True
 
-        if request.method in permissions.SAFE_METHODS:
-            return True
+    #     if request.method in permissions.SAFE_METHODS:
+    #         return True
 
-        if obj.created_by_id == payload["id"]:
-            return True
+    #     if obj.created_by_id == payload["id"]:
+    #         return True
 
-        return False
+    #     return False

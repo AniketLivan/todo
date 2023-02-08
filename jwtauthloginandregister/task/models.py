@@ -38,7 +38,7 @@ class TaskModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     total_comments = models.IntegerField(default=0)
-    created_by_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         permissions = (
@@ -50,7 +50,7 @@ class BookmarkModel(models.Model):
     
     id = models.IntegerField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     task_id = models.ForeignKey('TaskModel', on_delete=models.CASCADE)
 class CommentModel(models.Model):
     
@@ -60,7 +60,7 @@ class CommentModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     up_votes = models.IntegerField(default=0)
-    created_by_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     task_id = models.ForeignKey('TaskModel', on_delete=models.CASCADE)
 
 from django.db import models
@@ -79,7 +79,7 @@ class UserPermissionModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     assigned_to_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_by_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_requests_created')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_requests_created')
     task_id = models.ForeignKey('TaskModel', on_delete=models.CASCADE)
     assigned_person = models.CharField(max_length=100)
     permission = models.CharField(max_length=3, choices=Permission.choices, default=Permission.read_only)
@@ -89,7 +89,7 @@ class UserPermissionModel(models.Model):
 class VoteModel(models.Model):
     # id = models.IntegerField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     task_id = models.ForeignKey('TaskModel', on_delete=models.CASCADE)
     comment_id = models.ForeignKey('CommentModel', on_delete=models.CASCADE)
      

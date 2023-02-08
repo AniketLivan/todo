@@ -8,17 +8,5 @@
     - python manage.py runserver
 
 2. APIs Available:
-    - Auth APIs:
-            - Add user
-                /api/register:
-                {
-                    "username": ,
-                    "password": ,
-                    "first_name":,
-                    "last_name":,
-                }
-            - Delete User
-                    Can only be done by Super user:
-                        create own super user
-                        python3 manage.py createsuperuser
-                    api/account/{"user_id"}
+    - Can be viewed in Swagger. Using
+        http://localhost:8000/doc/

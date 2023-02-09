@@ -46,7 +46,7 @@ class TaskManager(models.Manager):
         lookups = Q(title__icontains=query) | Q(content__icontains=query)
         return self.get_queryset().filter(lookups)
     
-    def get_queryset(self, get_obj=False):
-        if get_obj==True:
-            return self.get_queryset().values_list('pk')
-        return super().get_queryset()
+    def get_queryset(self):
+        # if get_obj==True:
+        #     return self.get_queryset().values_list('pk')
+        return super(TaskManager,self).get_queryset().filter(status="AC")

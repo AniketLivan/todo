@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from jwtauthloginandregister import settings
-
+from .manager import TaskManager
 # Create your models here.
 
 # class Permission(models.TextChoices):
@@ -44,6 +44,8 @@ class TaskModel(models.Model):
         permissions = (
             ('change_task_model', 'Change Taskmodel'),
         )
+
+    objects = TaskManager()
 # Create your models here.
 
 class BookmarkModel(models.Model):

@@ -11,20 +11,20 @@ from guardian.shortcuts import assign_perm
 from django.db import transaction
  
 
-def authenticate(token):
-    try:
-        payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=['HS256'])
-        if "id" in payload:
-            user = User.objects.get(token=payload["id"])
-        else:
-            return None
-    except User.Doestaskxist:
-        return None
+# def authenticate(token):
+#     try:
+#         payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=['HS256'])
+#         if "id" in payload:
+#             user = User.objects.get(token=payload["id"])
+#         else:
+#             return None
+#     except User.Doestaskxist:
+#         return None
 
-    if not user.is_active:
-        return None
+#     if not user.is_active:
+#         return None
 
-    return user
+#     return user
 
 
 class TaskListViewSet(viewsets.ModelViewSet):

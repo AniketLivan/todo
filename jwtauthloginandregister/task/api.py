@@ -1,5 +1,5 @@
 import math
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from .serializer import TaskSerializer, UserSerializer, RegisterSerializer, BookmarkSerializer, CommentSerializer, UserPermissionSerializer, VoteSerializer
 from django.contrib.auth.models import User
@@ -26,13 +26,19 @@ def authenticate(token):
 
     return user
 
-#Register API
-class RegisterTask(generics.GenericAPIView):
+
+class TaskListViewSet(viewsets.ModelViewSet):
+    queryset = TaskModel.objects.all()
     serializer_class = TaskSerializer
 
-    def post(self, request, *args,  **kwargs):
-        # token = request.headers.get("authorization")
-        # request.user.is_authenticated = authenticate(token=token)
+    def list(self, request):
+        if request.user.is_authenticated:
+            serializer = self.get_serializer(self.queryset, many=True)
+            return Response(serializer.data)
+        else:
+           raise Exception("Invalid Token") 
+
+    def create(self, request):
         if request.user.is_authenticated:
             data = request.data
             data['created_by'] = request.user.id
@@ -46,25 +52,46 @@ class RegisterTask(generics.GenericAPIView):
             })
         else:
             raise Exception("Invalid Token")
+
+#Register API
+# class RegisterTask(generics.GenericAPIView):
+    # serializer_class = TaskSerializer
+
+    # def post(self, request, *args,  **kwargs):
+    #     # token = request.headers.get("authorization")
+    #     # request.user.is_authenticated = authenticate(token=token)
+    #     if request.user.is_authenticated:
+    #         data = request.data
+    #         data['created_by'] = request.user.id
+    #         serializer = self.get_serializer(data=data)
+    #         serializer.is_valid(raise_exception=True)
+    #         task = serializer.save()
+    #         assign_perm('task.change_task_model', request.user, task)
+    #         return Response({
+    #             "user": TaskSerializer(task, context=self.get_serializer_context()).data,
+    #             "message": "Task Created Successfully.  Now perform Login to get your token",
+    #         })
+    #     else:
+    #         raise Exception("Invalid Token")
         
-    def get(self, request):
-        page_num = int(request.GET.get("page", 1))
-        limit_num = int(request.GET.get("limit", 10))
-        start_num = (page_num - 1) * limit_num
-        end_num = limit_num * page_num
-        search_param = request.GET.get("search")
-        task =TaskModel.filter().all()
-        total_task = task.count()
-        if search_param:
-            task = task.filter(title__icontains=search_param)
-        serializer = self.serializer_class(task[start_num:end_num], many=True)
-        return Response({
-            "status": "success",
-            "total": total_task,
-            "page": page_num,
-            "last_page": math.ceil(total_task / limit_num),
-            "task": serializer.data
-        })
+    # def get(self, request):
+    #     page_num = int(request.GET.get("page", 1))
+    #     limit_num = int(request.GET.get("limit", 10))
+    #     start_num = (page_num - 1) * limit_num
+    #     end_num = limit_num * page_num
+    #     search_param = request.GET.get("search")
+    #     task =TaskModel.filter().all()
+    #     total_task = task.count()
+    #     if search_param:
+    #         task = task.filter(title__icontains=search_param)
+    #     serializer = self.serializer_class(task[start_num:end_num], many=True)
+    #     return Response({
+    #         "status": "success",
+    #         "total": total_task,
+    #         "page": page_num,
+    #         "last_page": math.ceil(total_task / limit_num),
+    #         "task": serializer.data
+    #     })
 
 
 class TaskDetail(generics.GenericAPIView):

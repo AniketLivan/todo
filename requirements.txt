@@ -4,3 +4,4 @@ rest_framework_simplejwt
 django-guardian
 drf-yasg
 django-rest-swagger
+django-rest-multiple-models

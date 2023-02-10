@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'drf_yasg',
     'task',
-    'guardian'
+    'guardian',
+    'drf_multiple_model',
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
      ],
-     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 20
 }
 
 AUTH_USER_MODEL = 'auth.User'
@@ -141,3 +144,4 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # this is default
     'guardian.backends.ObjectPermissionBackend',
 )
+

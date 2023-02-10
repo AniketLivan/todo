@@ -9,7 +9,13 @@ import jwt
 from jwtauthloginandregister.settings import SECRET_KEY
 from guardian.shortcuts import assign_perm
 from django.db import transaction
- 
+from django.db.models import Q
+import itertools
+from rest_framework.views import APIView
+from rest_framework.settings import api_settings
+
+from drf_multiple_model.pagination import MultipleModelLimitOffsetPagination
+from drf_multiple_model.views import FlatMultipleModelAPIView
 
 # def authenticate(token):
 #     try:
@@ -26,6 +32,31 @@ from django.db import transaction
 
 #     return user
 
+# class SearchView(APIView, MyPaginationMixin):
+#     permission_class = api_settings.DEFAULT_PAGINATION_CLASS
+#     def list(self, request):
+#         task = TaskModel.objects.filter( Q(title__icontains=request.GET['q']) | Q(description__icontains=request.GET['q']))
+#         comment = CommentModel.objects.filter(Q(description__icontains=request.GET['q']))
+#         combined = itertools.chain(task, comment)
+#         page = self.paginate_queryset(combined)
+#         if page is not None:
+#             for entry in 
+#             return self.get_paginated_response(serializer.data)
+
+class LimitPagination(MultipleModelLimitOffsetPagination):
+    default_limit = 10
+
+class SearchView(FlatMultipleModelAPIView):
+    pagination_class = LimitPagination
+    def get_querylist(self):
+        if self.request.user.is_authenticated:
+            querylist = (
+                {'queryset': TaskModel.objects.all(), 'serializer_class': TaskSerializer},
+                {'queryset': CommentModel.objects.all(), 'serializer_class': CommentSerializer},
+            )
+            return querylist
+        else:
+            raise Exception("Invalid Token")
 
 class TaskListViewSet(viewsets.ModelViewSet):
     queryset = TaskModel.objects.all()

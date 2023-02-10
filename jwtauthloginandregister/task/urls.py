@@ -1,11 +1,12 @@
 from django.urls import path, include
-from .api import  TaskDetail, RegisterApi, RegisterAccountDetail, RegisterBookmark, BookmarkDetail, RegisterComment, CommentDetail, RegisterPermission, PermissionDetail, RegisterVote
+from .api import  TaskDetail, RegisterApi, RegisterAccountDetail, RegisterBookmark, BookmarkDetail, RegisterComment, CommentDetail, RegisterPermission, PermissionDetail, RegisterVote, SearchView
 from rest_framework import routers
 from .api import TaskListViewSet
 router = routers.DefaultRouter()
 router.register(r'api/task', TaskListViewSet)
 urlpatterns = [
       # path('api/task', RegisterTask.as_view()),
+      path('api/search', SearchView.as_view()),
       path('api/task/<str:pk>', TaskDetail.as_view()),
       path('api/register', RegisterApi.as_view()),
       path('api/account/<str:pk>', RegisterAccountDetail.as_view()),

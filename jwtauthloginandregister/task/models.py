@@ -96,3 +96,10 @@ class VoteModel(models.Model):
     comment_id = models.ForeignKey('CommentModel', on_delete=models.CASCADE)
      
 
+class MostViewedTaskModel(models.Model):
+    
+    id = models.IntegerField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # task_id = models.ForeignKey('TaskModel', on_delete=models.CASCADE)
+    views = models.IntegerField(default=0)

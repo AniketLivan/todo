@@ -3,20 +3,17 @@ from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from .serializer import TaskSerializer, UserSerializer, RegisterSerializer, BookmarkSerializer, CommentSerializer, UserPermissionSerializer, VoteSerializer
 from django.contrib.auth.models import User
-from .models import TaskModel, BookmarkModel, CommentModel, UserPermissionModel, VoteModel
+from .models import TaskModel, BookmarkModel, CommentModel, UserPermissionModel, VoteModel, MostViewedTaskModel
 from datetime import datetime
-import jwt
 from jwtauthloginandregister.settings import SECRET_KEY
 from guardian.shortcuts import assign_perm
 from django.db import transaction
-from django.db.models import Q
-import itertools
-from rest_framework.views import APIView
+from django.db.models import F
 from rest_framework.settings import api_settings
 
 from drf_multiple_model.pagination import MultipleModelLimitOffsetPagination
 from drf_multiple_model.views import FlatMultipleModelAPIView
-
+from .utils import ConvertQuerysetToJson
 # def authenticate(token):
 #     try:
 #         payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=['HS256'])
@@ -57,6 +54,20 @@ class SearchView(FlatMultipleModelAPIView):
             return querylist
         else:
             raise Exception("Invalid Token")
+        
+class GetMostViewedTaskView(viewsets.ModelViewSet):
+    def list(self, request):
+        if request.user.is_authenticated:
+            raw = {"id":"id", "views": "views", "title":"title", }
+            data = list(MostViewedTaskModel.objects.raw("SELECT task_mostviewedtaskmodel.id, task_mostviewedtaskmodel.views, task_taskmodel.title FROM task_taskmodel, task_mostviewedtaskmodel WHERE task_mostviewedtaskmodel.id==task_taskmodel.id ORDER BY task_mostviewedtaskmodel.views DESC LIMIT 5", translations=raw))
+            resp = ConvertQuerysetToJson(data)
+            return Response({
+                "status": "Success",
+                "data" : resp
+            })
+        else:
+            raise Exception("Invalid Token")
+
 
 class TaskListViewSet(viewsets.ModelViewSet):
     queryset = TaskModel.objects.all()
@@ -142,13 +153,19 @@ class TaskDetail(generics.GenericAPIView):
         if not pk:
             return Response({"status": "Fail", "task": "Provide ID"})
         if request.user.is_authenticated:
-            task = self.get_task(pk=pk)
-            
-            if task == None:
-                return Response({"status": "fail", "message": f"task with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
-            assigned_users = UserPermissionModel.objects.filter(task_id=pk).values('assigned_to_id')
-            serializer = self.serializer_class(task)
-            return Response({"status": "success", "task": serializer.data, "assigned_user":assigned_users})
+            try:
+                with transaction.atomic():
+                    task = self.get_task(pk=pk)
+                    view, created = MostViewedTaskModel.objects.get_or_create(pk=pk)
+                    view.views = F('views') + 1
+                    view.save()   
+                    if task == None:
+                        return Response({"status": "fail", "message": f"task with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
+                    assigned_users = UserPermissionModel.objects.filter(task_id=pk).values('assigned_to_id')
+                    serializer = self.serializer_class(task)
+                    return Response({"status": "success", "task": serializer.data, "assigned_user":assigned_users})
+            except:
+                raise("Unable to fetch task")
         else:
             raise Exception("Invalid Token")
 
